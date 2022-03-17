@@ -106,4 +106,20 @@ User.find({$or:[{'user':{ $regex: id, $options: 'i'}},{'email':{ $regex: id, $op
 
 });
 
+app.get('/findOneUser/:id', (req,res)=>{
+  let id = req.params.id;
+  User.findById(id,(err,data)=>{
+    if (err) {
+      return res.status(400).json({
+        ok:false,
+        err
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      data
+    })
+  })
+})
+
 module.exports = app;
