@@ -5,7 +5,6 @@ const _ = require("underscore");
 const User = require("../Models/user");
 const Convertation = require("./../Models/convertation");
 const { verification } = require("../Middlewares/autetication");
-const { io, clients } = require("./../server");
 app.post("/createconvertation", (req, res) => {
   let body = req.body;
   let convertation = new Convertation({
@@ -67,10 +66,21 @@ app.put("/sendmessage", (req, res) => {
           err,
         });
       }
-      // let user1 = clients.findIndex((x) => x.userId == data.user1);
-      // let user2 = clients.findIndex((x) => x.userId == data.user2);
-      // io.sockets.to(clients[user1].socket.id).emit("message", body.message);
-      // io.sockets.to(clients[user2].socket.id).emit("message", body.message);
+      let io = req.app.get("socketio");
+      let clients = req.app.get("clients");
+      try {
+        let user1 = clients.findIndex((x) => x.userId == data.user1);
+        io.sockets.to(clients[user1].socketId).emit("message", body.message);
+      } catch (error) {
+        console.log("User is disconnected");
+      }
+      try {
+        let user2 = clients.findIndex((x) => x.userId == data.user2);
+        io.sockets.to(clients[user2].socketId).emit("message", body.message);
+      } catch (error) {
+        console.log("User is disconnected");
+      }
+
       return res.status(200).json({
         ok: true,
         msg: "Message was send successfuly",

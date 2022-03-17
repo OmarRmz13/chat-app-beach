@@ -1,11 +1,11 @@
 require("./Config/config");
 const express = require("express");
 const mongoose = require("mongoose");
-const socket = require("socket.io");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-var clients = [];
+const socket = require('socket.io');
+const clients = [];
 const server = app.listen(process.env.PORT, () =>
   console.log(`listening on ${process.env.PORT}`)
 );
@@ -55,4 +55,6 @@ io.on("connection", (socket) => {
     clients.splice(userDisconect, 1);
   });
 });
-module.exports = { clients, io };
+
+app.set('socketio', io);
+app.set('clients',clients)

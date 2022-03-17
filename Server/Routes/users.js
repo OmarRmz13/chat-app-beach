@@ -72,6 +72,7 @@ app.get("/getconvertations/", verification, (req, res) => {
           "user1.photo": 1,
         },
       },
+      { $sort : { "messages[0].date" : 1 } }
     ]).exec((err, data) => {
       if (err) {
         return res.status(400).json({
