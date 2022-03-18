@@ -10,7 +10,6 @@ app.get("/images/:path/:name", (req, res) => {
 
   fs.stat(pathImage, function (err, stat) {
     if (err == null) {
-      console.log("File exists");
       res.sendFile(pathImage);
     } else if (err.code === "ENOENT") {
       // file does not exist

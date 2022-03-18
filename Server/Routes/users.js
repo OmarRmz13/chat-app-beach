@@ -31,7 +31,6 @@ app.post("/signup", (req, res) => {
 
 app.get("/getconvertations/", verification, (req, res) => {
   let id = req.user;
-  console.log(id);
   User.findById(id, { convertations: 1, _id: 0 }, (err, data) => {
     if (err) {
       return res.status(400).json({
@@ -155,15 +154,35 @@ app.put("/updateimage/:id", (req, res) => {
 const base64ToImage = (base64, nombre) => {
   const base64Data = base64.split(";base64,").pop();
   require("fs").writeFile(
-    `./Images/Users/${nombre}.png`,
+    `../Images/Users/${nombre}.png`,
     base64Data,
     "base64",
     (err, data) => {
       if (err) {
+        console.log(err)
         return err;
       }
     }
   );
   return `${nombre}.png`;
 };
+
+app.put('/updateUser/:id', (req,res)=>{
+  let id = req.params.id;
+  let body = _.pick(req.body,['description']);
+
+  User.findByIdAndUpdate(id,body,{ new: true, runValidators: true, context: "query" },(err,data)=>{
+    if (err) {
+      return res.status(400).json({
+        ok:false,
+        err
+      });
+    }
+    return res.status(200).json({
+      ok:true,
+      data
+    });
+  });
+});
+
 module.exports = app;

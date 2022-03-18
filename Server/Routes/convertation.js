@@ -28,7 +28,6 @@ app.post("/createconvertation", (req, res) => {
         if (err) {
           console.log(err);
         }
-        console.log(data);
       }
     );
     User.findByIdAndUpdate(
@@ -39,7 +38,6 @@ app.post("/createconvertation", (req, res) => {
         if (err) {
           console.log(err);
         }
-        console.log(data);
       }
     );
     // let user1 = clients.findIndex((x) => x.userId == data.user1);

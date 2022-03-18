@@ -44,13 +44,18 @@ mongoose.connect(
 
 io.on("connection", (socket) => {
   socket.on("storeClientInfo", function (data) {
-    var clientInfo = new Object();
-    clientInfo.userId = data.customId;
-    clientInfo.socket = socket;
-    clientInfo.socketId = socket.id;
-    clients.push(clientInfo);
+    let socketExist = clients.findIndex((x) => x.userId === data.customId);
+    console.log(socketExist);
+    // if(!socketExist) {
+      let clientInfo = new Object();
+      clientInfo.userId = data.customId;
+      clientInfo.socket = socket;
+      clientInfo.socketId = socket.id;
+      clients.push(clientInfo);
+    // }
   });
   socket.on("disconnect", function (data) {
+    console.log(data)
     let userDisconect = clients.findIndex((x) => x.socketId === socket.id);
     clients.splice(userDisconect, 1);
   });
