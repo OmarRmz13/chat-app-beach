@@ -69,12 +69,15 @@ app.put("/sendmessage", (req, res) => {
       try {
         let user1 = clients.findIndex((x) => x.userId == data.user1);
         io.sockets.to(clients[user1].socketId).emit("message", body.message);
+        console.log("Se mando el mensaje a user1");
       } catch (error) {
         console.log("User is disconnected");
       }
       try {
         let user2 = clients.findIndex((x) => x.userId == data.user2);
         io.sockets.to(clients[user2].socketId).emit("message", body.message);
+        console.log("Se mando el mensaje a user2");
+
       } catch (error) {
         console.log("User is disconnected");
       }

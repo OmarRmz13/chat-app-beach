@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-const socket = require('socket.io');
+const socket = require("socket.io");
 const clients = [];
 const server = app.listen(process.env.PORT, () =>
   console.log(`listening on ${process.env.PORT}`)
@@ -43,23 +43,21 @@ mongoose.connect(
 );
 
 io.on("connection", (socket) => {
-  socket.on("storeClientInfo", function (data) {
-    let socketExist = clients.findIndex((x) => x.userId === data.customId);
-    console.log(socketExist);
-    // if(!socketExist) {
+
+
+    socket.on("storeClientInfo", function (data) {
       let clientInfo = new Object();
       clientInfo.userId = data.customId;
       clientInfo.socket = socket;
       clientInfo.socketId = socket.id;
       clients.push(clientInfo);
-    // }
-  });
+    });
+
   socket.on("disconnect", function (data) {
-    console.log(data)
     let userDisconect = clients.findIndex((x) => x.socketId === socket.id);
     clients.splice(userDisconect, 1);
   });
 });
 
-app.set('socketio', io);
-app.set('clients',clients)
+app.set("socketio", io);
+app.set("clients", clients);
