@@ -5,6 +5,8 @@ const _ = require("underscore");
 const User = require("../Models/user");
 const Convertation = require("./../Models/convertation");
 const { verification } = require("../Middlewares/autetication");
+const fs = require("fs");
+const path = require("path");
 app.post("/signup", (req, res) => {
   let body = req.body;
   let user = new User({
@@ -68,11 +70,10 @@ app.get("/getconvertations/", verification, (req, res) => {
           "user2._id": 1,
           "user1.user": 1,
           "user2.user": 1,
-          "user2._photo": 1,
+          "user2.photo": 1,
           "user1.photo": 1,
         },
       },
-      { $sort : { "messages[0].date" : 1 } }
     ]).exec((err, data) => {
       if (err) {
         return res.status(400).json({
@@ -80,6 +81,9 @@ app.get("/getconvertations/", verification, (req, res) => {
           err,
         });
       }
+      data.sort(function (a, b) {
+        return new Date(b.messages[0].date) - new Date(a.messages[0].date);
+      });
       return res.status(200).json({
         ok: true,
         data: data,
@@ -89,37 +93,77 @@ app.get("/getconvertations/", verification, (req, res) => {
 });
 
 app.get("/finduser/:id", (req, res) => {
-  let id = req.params.id
-User.find({$or:[{'user':{ $regex: id, $options: 'i'}},{'email':{ $regex: id, $options: 'i'}}]},{'user':1,'email':1},{limit: 50},(err,data)=>{
-  if (err) {
-    return res.status(400).json({
-      ok:false,
-      err
-    })
- 
-  }
-  return res.status(200).json({
-    ok:true,
-    data
-  })
-})
-
+  let id = req.params.id;
+  User.find(
+    {
+      $or: [
+        { user: { $regex: id, $options: "i" } },
+        { email: { $regex: id, $options: "i" } },
+      ],
+    },
+    { user: 1, email: 1 },
+    { limit: 50 },
+    (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          ok: false,
+          err,
+        });
+      }
+      return res.status(200).json({
+        ok: true,
+        data,
+      });
+    }
+  );
 });
 
-app.get('/findOneUser/:id', (req,res)=>{
+app.get("/findOneUser/:id", (req, res) => {
   let id = req.params.id;
-  User.findById(id,(err,data)=>{
+  User.findById(id, (err, data) => {
     if (err) {
       return res.status(400).json({
-        ok:false,
-        err
+        ok: false,
+        err,
       });
     }
     return res.status(200).json({
       ok: true,
-      data
+      data,
+    });
+  });
+});
+app.put("/updateimage/:id", (req, res) => {
+  let id = req.params.id;
+  let body = req.body;
+  let image = base64ToImage(body.image, "profilepic-" + id);
+  User.findByIdAndUpdate(id, { 'photo':image }, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        ok: false,
+        err: { msg: "Error al subir la imagen al serivor", err },
+      });
+    }
+    return res.status(200).json({
+      ok:true,
+      msg:'Se actualizo la imagen :)',
+      data:data
     })
-  })
-})
+  });
+});
 
+const base64ToImage = (base64, nombre) => {
+  const base64Data = base64.split(";base64,").pop();
+  require("fs").writeFile(
+    `./Images/Users/${nombre}.png`,
+    base64Data,
+    "base64",
+    (err, data) => {
+      if (err) {
+        return err;
+      }
+    }
+  );
+  return `${nombre}.png`;
+};
 module.exports = app;
